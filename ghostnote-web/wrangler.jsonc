@@ -2,9 +2,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"main": ".open-next/worker.js",
 	"name": "ghostnote",
-	"build": {
-		"command": "npm run build"
-	},
+
 	"compatibility_date": "2026-06-21",
 	"compatibility_flags": [
 		"nodejs_compat",
