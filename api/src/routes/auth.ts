@@ -37,7 +37,19 @@ authRouter.post('/register', zValidator('json', registerSchema), async (c) => {
       createdAt: new Date(),
     });
 
-    return c.json({ message: 'User registered successfully' }, 201);
+    if (!c.env.JWT_SECRET) {
+      return c.json({ error: 'Internal Server Error' }, 500);
+    }
+
+    const payload = {
+      sub: userId,
+      provider: 'web',
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 1 week
+    };
+
+    const token = await sign(payload, c.env.JWT_SECRET);
+
+    return c.json({ token, message: 'User registered successfully' }, 201);
   } catch (error) {
     return c.json({ error: 'Failed to register user' }, 500);
   }
