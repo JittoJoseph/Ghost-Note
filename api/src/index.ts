@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { Env } from "./env";
 import authRouter from "./routes/auth";
 import userRouter from "./routes/user";
+import linksRouter from "./routes/links";
+import dashboardRouter from "./routes/dashboard";
 
 const app = new Hono<Env>();
 
@@ -15,5 +17,7 @@ app.get("/health", (c) => {
 
 app.route("/auth", authRouter);
 app.route("/user", userRouter);
+app.route("/links", linksRouter);
+app.route("/dashboard", dashboardRouter);
 
 export default app;
