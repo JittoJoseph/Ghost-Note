@@ -33,7 +33,7 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
         onClick={onClose}
       />
       <div
-        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 md:p-8 animate-fade-up"
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-6 md:p-8 animate-fade-up"
         onClick={(e) => e.stopPropagation()}
       >
         <button

@@ -370,49 +370,47 @@ export default function DashboardPage() {
         {selectedLink && (
           <div className="flex flex-col pr-8">
             {/* Modal Header */}
-            <div className="flex flex-col mb-6">
-              <div className="flex items-center gap-3">
-                <h3 className="text-2xl font-extrabold text-[var(--color-foreground)] tracking-tight">
-                  {selectedLink.slug}
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex flex-col gap-1.5">
+                <h3 className="text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">
+                  /{selectedLink.slug}
                 </h3>
-                <button
-                  onClick={() =>
-                    handleCopyModal(getLinkUrl(selectedLink.slug), "modal")
-                  }
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                    copiedId === "modal"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-stone-100 text-stone-600 hover:bg-stone-200"
-                  }`}
-                >
-                  {copiedId === "modal" ? (
-                    <FiCheck className="w-3.5 h-3.5" />
-                  ) : (
-                    <FiCopy className="w-3.5 h-3.5" />
-                  )}
-                  {copiedId === "modal" ? "Copied" : "Copy"}
-                </button>
+                <p className="text-sm text-stone-400 font-medium">
+                  {selectedLink.submission
+                    ? `Received on ${formatFullTime(selectedLink.submission.createdAt)}`
+                    : `Created on ${formatFullTime(selectedLink.createdAt)}`}
+                </p>
               </div>
-              <p className="text-sm text-stone-400 font-medium mt-2">
-                {selectedLink.submission
-                  ? `Received on ${formatFullTime(selectedLink.submission.createdAt)}`
-                  : `Created on ${formatFullTime(selectedLink.createdAt)}`}
-              </p>
+              <button
+                onClick={() =>
+                  handleCopyModal(getLinkUrl(selectedLink.slug), "modal")
+                }
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-sm ${
+                  copiedId === "modal"
+                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    : "bg-white border border-stone-200 text-stone-600 hover:bg-stone-50"
+                }`}
+              >
+                {copiedId === "modal" ? (
+                  <FiCheck className="w-4 h-4" />
+                ) : (
+                  <FiCopy className="w-4 h-4" />
+                )}
+                {copiedId === "modal" ? "Copied" : "Copy Link"}
+              </button>
             </div>
 
             <div className="h-px w-full bg-stone-100 mb-6" />
 
             {/* Modal Body */}
             {selectedLink.submission ? (
-              <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200 h-[300px] overflow-y-auto custom-scrollbar">
-                <div className="min-h-full flex flex-col justify-center items-center">
-                  <p className="text-[var(--color-foreground)] whitespace-pre-wrap text-base md:text-lg font-medium leading-relaxed text-center break-words max-w-full">
-                    {selectedLink.submission.message}
-                  </p>
-                </div>
+              <div className="bg-stone-50 rounded-2xl p-6 md:p-8 border border-stone-200 h-[350px] md:h-[450px] overflow-y-auto custom-scrollbar">
+                <p className="text-[var(--color-foreground)] whitespace-pre-wrap text-base md:text-lg font-medium leading-relaxed break-words max-w-full">
+                  {selectedLink.submission.message}
+                </p>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-[300px] text-stone-400 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+              <div className="flex flex-col items-center justify-center h-[350px] md:h-[450px] text-stone-400 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
                 <p className="text-base font-bold text-stone-500">Still waiting...</p>
                 <p className="text-sm font-medium mt-1">
                   No one has left a message on this link yet.
