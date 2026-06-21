@@ -4,18 +4,20 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import { Container } from "@/components/layout/Container";
-import { Navbar } from "@/components/layout/Navbar";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import {
   FiCopy,
   FiCheck,
-  FiEye,
   FiPlus,
+  FiLogOut,
   FiLink,
+  FiActivity,
+  FiInbox,
 } from "react-icons/fi";
 import { FaGhost } from "react-icons/fa";
+import Link from "next/link";
 
 interface Submission {
   id: string;
@@ -33,7 +35,7 @@ interface DashboardLink {
 }
 
 export default function DashboardPage() {
-  const { token, isLoading: isAuthLoading } = useAuth();
+  const { token, logout, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   const [links, setLinks] = useState<DashboardLink[]>([]);
@@ -53,6 +55,11 @@ export default function DashboardPage() {
     }
   }, [isAuthLoading, token, router]);
 
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
   const fetchLinks = async () => {
     if (!token) return;
     try {
@@ -60,7 +67,7 @@ export default function DashboardPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/dashboard/links`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       if (res.ok) {
         const data = (await res.json()) as { links: DashboardLink[] };
@@ -111,22 +118,29 @@ export default function DashboardPage() {
       fetchLinks();
     } catch (err: unknown) {
       setCreateError(
-        err instanceof Error ? err.message : "Failed to create link"
+        err instanceof Error ? err.message : "Failed to create link",
       );
     } finally {
       setIsCreatingLink(false);
     }
   };
 
-  const handleCopy = (url: string, id: string) => {
+  const handleCopy = (e: React.MouseEvent, url: string, id: string) => {
+    e.stopPropagation(); // prevent modal from opening when clicking copy
     navigator.clipboard.writeText(url).then(() => {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     });
   };
 
-  const getLinkUrl = (slug: string) =>
-    `${window.location.origin}/l/${slug}`;
+  const handleCopyModal = (url: string, id: string) => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
+
+  const getLinkUrl = (slug: string) => `${window.location.origin}/l/${slug}`;
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -165,37 +179,80 @@ export default function DashboardPage() {
   const totalResponses = links.filter((l) => l.submission).length;
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-1 flex flex-col py-8">
-        <Container className="flex flex-col gap-8">
-          {/* Header + Stats */}
-          <div>
-            <h1 className="text-2xl font-extrabold text-[var(--color-foreground)] tracking-tight">
-              Your Links
-            </h1>
-            {!isLoading && links.length > 0 && (
-              <div className="flex items-center gap-2 mt-2 text-sm text-stone-400 font-medium">
-                <span>
-                  <strong className="text-stone-600">{totalLinks}</strong>{" "}
-                  {totalLinks === 1 ? "link" : "links"}
-                </span>
-                <span className="text-stone-300">·</span>
-                <span>
-                  <strong className="text-stone-600">{totalVisits}</strong>{" "}
-                  {totalVisits === 1 ? "visit" : "visits"}
-                </span>
-                <span className="text-stone-300">·</span>
-                <span>
-                  <strong className="text-stone-600">{totalResponses}</strong>{" "}
-                  {totalResponses === 1 ? "response" : "responses"}
-                </span>
-              </div>
-            )}
+    <div className="flex-1 flex flex-col min-h-screen bg-[var(--color-background)]">
+      <main className="flex-1 flex flex-col py-8 lg:py-16">
+        <Container className="flex flex-col gap-12 max-w-4xl mx-auto w-full">
+          {/* Top Bar (Logo + Logout) */}
+          <div className="flex items-center justify-between">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-[var(--color-primary)]"
+            >
+              <FaGhost className="w-6 h-6" />
+              <span className="font-extrabold text-xl tracking-tight text-[var(--color-foreground)]">
+                GhostNote
+              </span>
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 text-sm font-bold text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <FiLogOut className="w-4 h-4" />
+              Log out
+            </button>
           </div>
 
-          {/* Create Link */}
-          <div className="bg-white rounded-2xl border border-[var(--color-border)] p-4 md:p-5">
+          {/* Substantial Horizontal Stats Bar */}
+          {!isLoading && (
+            <div className="bg-white border border-stone-200 rounded-3xl shadow-sm overflow-hidden">
+              <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-stone-100">
+                <div className="flex-1 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-stone-50/50 transition-colors">
+                  <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-500">
+                    <FiLink className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="block text-3xl font-bold text-[var(--color-foreground)] tracking-tight">
+                      {totalLinks}
+                    </span>
+                    <span className="text-sm font-bold text-stone-400">
+                      Total Links
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex-1 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-stone-50/50 transition-colors">
+                  <div className="p-3 bg-blue-50 rounded-2xl text-blue-500">
+                    <FiActivity className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="block text-3xl font-bold text-[var(--color-foreground)] tracking-tight">
+                      {totalVisits}
+                    </span>
+                    <span className="text-sm font-bold text-stone-400">
+                      Total Visits
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex-1 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-stone-50/50 transition-colors">
+                  <div className="p-3 bg-green-50 rounded-2xl text-green-500">
+                    <FiInbox className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="block text-3xl font-bold text-[var(--color-foreground)] tracking-tight">
+                      {totalResponses}
+                    </span>
+                    <span className="text-sm font-bold text-stone-400">
+                      Responses
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Create Link Section */}
+          <div className="bg-white rounded-3xl border border-stone-200 p-6 shadow-sm">
             <form
               onSubmit={handleCreateLink}
               className="flex flex-col sm:flex-row gap-3"
@@ -203,7 +260,7 @@ export default function DashboardPage() {
               <div className="flex-1">
                 <Input
                   type="text"
-                  placeholder="Enter a password for your link..."
+                  placeholder="Enter a secure password for a new link..."
                   value={linkPassword}
                   onChange={(e) => setLinkPassword(e.target.value)}
                   required
@@ -212,130 +269,133 @@ export default function DashboardPage() {
               <Button
                 type="submit"
                 isLoading={isCreatingLink}
-                className="sm:w-auto h-[48px] px-6 shrink-0"
+                className="sm:w-auto h-[48px] px-8 shrink-0 text-base"
               >
-                <FiPlus className="w-4 h-4 mr-1.5" />
+                <FiPlus className="w-5 h-5 mr-2" />
                 Generate Link
               </Button>
             </form>
 
             {createError && (
-              <p className="text-sm text-red-500 font-medium mt-3">
+              <p className="text-sm text-red-500 font-medium mt-3 px-1">
                 {createError}
               </p>
             )}
 
             {createdLink && (
-              <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-200">
-                <code className="text-sm font-bold text-green-800 break-all flex-1">
+              <div className="mt-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl bg-green-50 border border-green-200">
+                <code className="text-base font-bold text-green-800 break-all flex-1">
                   {createdLink}
                 </code>
                 <button
-                  onClick={() => handleCopy(createdLink, "new")}
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-green-700 hover:text-green-900 transition-colors shrink-0"
+                  onClick={(e) => handleCopy(e, createdLink, "new")}
+                  className="inline-flex items-center justify-center gap-2 text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition-colors shrink-0 px-5 py-2 rounded-xl"
                 >
                   {copiedId === "new" ? (
                     <FiCheck className="w-4 h-4" />
                   ) : (
                     <FiCopy className="w-4 h-4" />
                   )}
-                  {copiedId === "new" ? "Copied" : "Copy"}
+                  {copiedId === "new" ? "Copied" : "Copy Link"}
                 </button>
               </div>
             )}
           </div>
 
-          {/* Links List */}
+          {/* Links List - Taller stacked cards */}
           {isLoading ? (
-            <div className="py-16 text-center text-stone-400 font-medium animate-pulse">
-              Loading your links...
+            <div className="py-20 text-center flex flex-col items-center justify-center">
+              <div className="w-10 h-10 border-2 border-stone-200 border-t-[var(--color-primary)] rounded-full animate-spin mb-4" />
+              <p className="text-stone-400 font-medium">
+                Loading your links...
+              </p>
             </div>
           ) : links.length === 0 ? (
             /* Empty State */
             <div className="py-20 flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mb-5">
-                <FaGhost className="w-7 h-7 text-stone-300" />
+              <div className="w-16 h-16 bg-white border border-stone-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                <FaGhost className="w-8 h-8 text-stone-300" />
               </div>
               <h2 className="text-lg font-extrabold text-[var(--color-foreground)] mb-2">
-                Create your first link
+                No links yet
               </h2>
-              <p className="text-sm text-stone-400 font-medium max-w-xs">
-                Generate a secure, single-use link above and share it with
-                someone to receive anonymous feedback.
+              <p className="text-sm text-stone-500 font-medium max-w-xs">
+                Generate a secure link above and share it to receive your first
+                anonymous message.
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-6">
               {links.map((link) => {
                 const url = getLinkUrl(link.slug);
                 const isCopied = copiedId === link.id;
+
                 return (
                   <div
                     key={link.id}
-                    className="bg-white rounded-2xl border border-[var(--color-border)] p-4 md:p-5 hover:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.06)] transition-all"
+                    onClick={() => setSelectedLink(link)}
+                    className="group flex flex-col bg-white rounded-3xl border border-stone-200 p-6 md:p-8 cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-stone-300"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                      {/* Left: Link info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <FiLink className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-                          <code className="text-sm font-bold text-[var(--color-foreground)] truncate">
-                            /l/{link.slug}
-                          </code>
+                    {/* Top Metadata Area */}
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex flex-col gap-3">
+                        {/* Title & Stats block */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                          <span className="text-2xl font-extrabold text-[var(--color-foreground)] tracking-tight">
+                            {link.slug}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`text-xs font-bold px-3 py-1.5 rounded-full ${
+                                link.submission
+                                  ? "bg-green-50 text-green-700 border border-green-100"
+                                  : "bg-stone-100 text-stone-500"
+                              }`}
+                            >
+                              {link.submission
+                                ? "Response Received"
+                                : "Awaiting..."}
+                            </span>
+                            <span className="text-sm font-bold text-stone-400">
+                              · {link.visitCount}{" "}
+                              {link.visitCount === 1 ? "Visit" : "Visits"}
+                            </span>
+                          </div>
                         </div>
-                        {link.submission && (
-                          <p className="text-sm text-stone-400 font-medium mt-1.5 line-clamp-1 italic pl-5">
-                            &ldquo;{link.submission.message}&rdquo;
-                          </p>
-                        )}
+                        <span className="text-sm font-bold text-stone-400">
+                          Created {formatTime(link.createdAt)}
+                        </span>
                       </div>
 
-                      {/* Right: Status + actions */}
-                      <div className="flex flex-col sm:items-end gap-2">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full w-fit ${
-                            link.submission
-                              ? "bg-green-50 text-green-700 border border-green-100"
-                              : "bg-amber-50 text-amber-700 border border-amber-100"
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              link.submission ? "bg-green-500" : "bg-amber-500"
-                            }`}
-                          />
-                          {link.submission
-                            ? "Response Received"
-                            : "Awaiting Response"}
-                        </span>
-                        <span className="text-xs text-stone-400 font-medium">
-                          {link.submission
-                            ? formatFullTime(link.submission.createdAt)
-                            : `Created ${formatTime(link.createdAt)}`}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleCopy(url, link.id)}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-stone-500 hover:text-[var(--color-foreground)] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-stone-50"
-                          >
-                            {isCopied ? (
-                              <FiCheck className="w-3.5 h-3.5 text-green-600" />
-                            ) : (
-                              <FiCopy className="w-3.5 h-3.5" />
-                            )}
-                            {isCopied ? "Copied" : "Copy"}
-                          </button>
-                          {link.submission && (
-                            <button
-                              onClick={() => setSelectedLink(link)}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-orange-50"
-                            >
-                              <FiEye className="w-3.5 h-3.5" />
-                              View
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                      {/* Copy Button */}
+                      <button
+                        onClick={(e) => handleCopy(e, url, link.id)}
+                        className={`p-3 rounded-full transition-colors shrink-0 ${
+                          isCopied
+                            ? "bg-green-100 text-green-700"
+                            : "bg-stone-50 text-stone-400 hover:bg-stone-200 hover:text-stone-700"
+                        }`}
+                        title="Copy link"
+                      >
+                        {isCopied ? (
+                          <FiCheck className="w-5 h-5" />
+                        ) : (
+                          <FiCopy className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Bottom Response Area */}
+                    <div className="w-full bg-stone-50 rounded-2xl border border-stone-100 p-5 md:p-6 group-hover:bg-stone-100/50 transition-colors">
+                      {link.submission ? (
+                        <p className="text-base text-stone-700 font-medium line-clamp-3 leading-relaxed">
+                          {link.submission.message}
+                        </p>
+                      ) : (
+                        <p className="text-base text-stone-400 italic font-medium flex items-center gap-2">
+                          No message yet. Share your link to receive responses.
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
@@ -345,25 +405,60 @@ export default function DashboardPage() {
         </Container>
       </main>
 
-      {/* Response Modal */}
+      {/* Detail Modal */}
       <Modal isOpen={!!selectedLink} onClose={() => setSelectedLink(null)}>
-        {selectedLink?.submission && (
-          <div className="flex flex-col gap-5">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <FiLink className="w-3.5 h-3.5 text-stone-400" />
-                <code className="text-sm font-bold text-stone-600">
-                  /l/{selectedLink.slug}
-                </code>
+        {selectedLink && (
+          <div className="flex flex-col pr-8">
+            {/* Modal Header */}
+            <div className="flex flex-col mb-6">
+              <div className="flex items-center gap-3">
+                <h3 className="text-2xl font-extrabold text-[var(--color-foreground)] tracking-tight">
+                  {selectedLink.slug}
+                </h3>
+                <button
+                  onClick={() =>
+                    handleCopyModal(getLinkUrl(selectedLink.slug), "modal")
+                  }
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    copiedId === "modal"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                  }`}
+                >
+                  {copiedId === "modal" ? (
+                    <FiCheck className="w-3.5 h-3.5" />
+                  ) : (
+                    <FiCopy className="w-3.5 h-3.5" />
+                  )}
+                  {copiedId === "modal" ? "Copied" : "Copy"}
+                </button>
               </div>
-              <span className="text-xs text-stone-400 font-medium">
-                {formatFullTime(selectedLink.submission.createdAt)}
-              </span>
+              <p className="text-sm text-stone-400 font-medium mt-2">
+                {selectedLink.submission
+                  ? `Received on ${formatFullTime(selectedLink.submission.createdAt)}`
+                  : `Created on ${formatFullTime(selectedLink.createdAt)}`}
+              </p>
             </div>
-            <div className="h-px bg-stone-100" />
-            <p className="text-[var(--color-foreground)] whitespace-pre-wrap text-base font-medium leading-relaxed">
-              {selectedLink.submission.message}
-            </p>
+
+            <div className="h-px w-full bg-stone-100 mb-6" />
+
+            {/* Modal Body */}
+            {selectedLink.submission ? (
+              <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200">
+                <p className="text-[var(--color-foreground)] whitespace-pre-wrap text-base font-medium leading-relaxed">
+                  {selectedLink.submission.message}
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col py-8 text-stone-400">
+                <p className="text-base font-bold text-stone-500">
+                  Still waiting...
+                </p>
+                <p className="text-sm font-medium mt-1">
+                  No one has left a message on this link yet.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </Modal>
