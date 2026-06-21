@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
@@ -16,7 +16,13 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, token, isLoading: isAuthLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthLoading && token) {
+      router.push("/dashboard");
+    }
+  }, [isAuthLoading, token, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +54,8 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   };
+
+  if (isAuthLoading || token) return null;
 
   return (
     <div className="flex-1 flex flex-col bg-[var(--color-background)] min-h-screen">
