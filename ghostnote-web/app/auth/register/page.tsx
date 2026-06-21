@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/lib/AuthContext";
 import { Navbar } from "@/components/layout/Navbar";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -15,6 +16,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,13 +30,18 @@ export default function RegisterPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const data = await res.json() as { token?: string, error?: string };
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to register");
       }
 
-      router.push("/auth/login");
+      if (data.token) {
+        login(data.token);
+        router.push("/dashboard");
+      } else {
+        throw new Error("No token received");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

@@ -41,7 +41,7 @@ export default function DashboardPage() {
       ]);
 
       if (statsRes.ok) setStats(await statsRes.json());
-      if (subsRes.ok) setSubmissions((await subsRes.json()).submissions);
+      if (subsRes.ok) setSubmissions((await subsRes.json() as { submissions: any[] }).submissions);
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     } finally {

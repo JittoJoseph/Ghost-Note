@@ -26,7 +26,7 @@ export default function AnonymousLinkPage({ params }: { params: Promise<{ slug: 
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/links/${slug}`);
         if (res.ok) {
-          const data = await res.json();
+          const data = await res.json() as { valid?: boolean };
           if (data.valid) {
             setIsValid(true);
           }
@@ -53,7 +53,7 @@ export default function AnonymousLinkPage({ params }: { params: Promise<{ slug: 
         body: JSON.stringify({ password, message }),
       });
 
-      const data = await res.json();
+      const data = await res.json() as { error?: string };
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to submit message");

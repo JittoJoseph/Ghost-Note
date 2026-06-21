@@ -31,14 +31,18 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const data = await res.json() as { token?: string, error?: string };
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to login");
       }
 
-      login(data.token);
-      router.push("/dashboard");
+      if (data.token) {
+        login(data.token);
+        router.push("/dashboard");
+      } else {
+        throw new Error("No token received");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
