@@ -7,12 +7,7 @@ import { Container } from "@/components/layout/Container";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import {
-  FiCopy,
-  FiCheck,
-  FiPlus,
-  FiLogOut,
-} from "react-icons/fi";
+import { FiCopy, FiCheck, FiPlus, FiLogOut } from "react-icons/fi";
 import { FaGhost } from "react-icons/fa";
 import Link from "next/link";
 
@@ -190,7 +185,7 @@ export default function DashboardPage() {
             </Link>
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-2 text-sm font-bold text-stone-500 hover:text-stone-800 transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-bold text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
             >
               <FiLogOut className="w-4 h-4" />
               Log out
@@ -198,27 +193,45 @@ export default function DashboardPage() {
           </div>
 
           {/* Substantial Horizontal Stats Bar */}
-          <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden animate-fade-up" style={{ animationDelay: '50ms' }}>
+          <div
+            className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden animate-fade-up"
+            style={{ animationDelay: "50ms" }}
+          >
             <div className="flex flex-row divide-x divide-stone-100">
               <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
-                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalLinks}</span>
-                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Links</span>
+                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">
+                  {totalLinks}
+                </span>
+                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">
+                  Links
+                </span>
               </div>
-              
+
               <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
-                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalVisits}</span>
-                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Visits</span>
+                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">
+                  {totalVisits}
+                </span>
+                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">
+                  Visits
+                </span>
               </div>
-              
+
               <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
-                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalResponses}</span>
-                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Responses</span>
+                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">
+                  {totalResponses}
+                </span>
+                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">
+                  Responses
+                </span>
               </div>
             </div>
           </div>
 
           {/* Create Link Section */}
-          <div className="bg-white rounded-3xl border border-stone-200 p-6 shadow-sm animate-fade-up" style={{ animationDelay: '100ms' }}>
+          <div
+            className="bg-white rounded-3xl border border-stone-200 p-6 shadow-sm animate-fade-up"
+            style={{ animationDelay: "100ms" }}
+          >
             <form
               onSubmit={handleCreateLink}
               className="flex flex-col sm:flex-row gap-3"
@@ -255,14 +268,14 @@ export default function DashboardPage() {
                 </code>
                 <button
                   onClick={(e) => handleCopy(e, createdLink, "new")}
-                  className="inline-flex items-center justify-center gap-2 text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition-colors shrink-0 px-5 py-2 rounded-xl"
+                  className="inline-flex items-center justify-center p-3 text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition-colors shrink-0 rounded-xl cursor-pointer"
+                  title="Copy Link"
                 >
                   {copiedId === "new" ? (
-                    <FiCheck className="w-4 h-4" />
+                    <FiCheck className="w-5 h-5" />
                   ) : (
-                    <FiCopy className="w-4 h-4" />
+                    <FiCopy className="w-5 h-5" />
                   )}
-                  {copiedId === "new" ? "Copied" : "Copy Link"}
                 </button>
               </div>
             )}
@@ -271,7 +284,10 @@ export default function DashboardPage() {
           {/* Links List - Taller stacked cards */}
           {!isLoading && !isAuthLoading && links.length === 0 ? (
             /* Empty State */
-            <div className="py-20 flex flex-col items-center text-center animate-fade-up" style={{ animationDelay: '150ms' }}>
+            <div
+              className="py-20 flex flex-col items-center text-center animate-fade-up"
+              style={{ animationDelay: "150ms" }}
+            >
               <div className="w-16 h-16 bg-white border border-stone-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
                 <FaGhost className="w-8 h-8 text-stone-300" />
               </div>
@@ -293,7 +309,7 @@ export default function DashboardPage() {
                   <div
                     key={link.id}
                     onClick={() => setSelectedLink(link)}
-                    className="group flex flex-col bg-white rounded-3xl border border-stone-200 p-6 md:p-8 cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-stone-300 animate-fade-up"
+                    className="group flex flex-col bg-white rounded-3xl border border-stone-200 p-6 md:p-8 cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] hover:border-stone-300 animate-fade-up"
                     style={{ animationDelay: `${150 + Math.min(i, 5) * 50}ms` }}
                   >
                     {/* Top Metadata Area */}
@@ -330,7 +346,7 @@ export default function DashboardPage() {
                       {/* Copy Button */}
                       <button
                         onClick={(e) => handleCopy(e, url, link.id)}
-                        className={`p-3 rounded-full transition-colors shrink-0 ${
+                        className={`p-3 rounded-full transition-all duration-200 shrink-0 cursor-pointer hover:scale-105 active:scale-95 ${
                           isCopied
                             ? "bg-green-100 text-green-700"
                             : "bg-stone-50 text-stone-400 hover:bg-stone-200 hover:text-stone-700"
@@ -368,12 +384,12 @@ export default function DashboardPage() {
       {/* Detail Modal */}
       <Modal isOpen={!!selectedLink} onClose={() => setSelectedLink(null)}>
         {selectedLink && (
-          <div className="flex flex-col pr-8">
+          <div className="flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-start justify-between mb-6">
+            <div className="flex items-start justify-between mb-6 pr-8 md:pr-12">
               <div className="flex flex-col gap-1.5">
                 <h3 className="text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">
-                  /{selectedLink.slug}
+                  {selectedLink.slug}
                 </h3>
                 <p className="text-sm text-stone-400 font-medium">
                   {selectedLink.submission
@@ -385,18 +401,17 @@ export default function DashboardPage() {
                 onClick={() =>
                   handleCopyModal(getLinkUrl(selectedLink.slug), "modal")
                 }
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-sm ${
+                className={`p-2 rounded-full transition-colors ${
                   copiedId === "modal"
-                    ? "bg-green-100 text-green-700 hover:bg-green-200"
-                    : "bg-white border border-stone-200 text-stone-600 hover:bg-stone-50"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-stone-50 text-stone-600 hover:bg-stone-200"
                 }`}
               >
                 {copiedId === "modal" ? (
-                  <FiCheck className="w-4 h-4" />
+                  <FiCheck className="w-5 h-5" />
                 ) : (
-                  <FiCopy className="w-4 h-4" />
+                  <FiCopy className="w-5 h-5" />
                 )}
-                {copiedId === "modal" ? "Copied" : "Copy Link"}
               </button>
             </div>
 
@@ -404,14 +419,16 @@ export default function DashboardPage() {
 
             {/* Modal Body */}
             {selectedLink.submission ? (
-              <div className="bg-stone-50 rounded-2xl p-6 md:p-8 border border-stone-200 h-[350px] md:h-[450px] overflow-y-auto custom-scrollbar">
+              <div className="bg-stone-50 rounded-2xl p-6 md:p-8 border border-stone-200 max-h-[350px] md:max-h-[450px] overflow-y-auto custom-scrollbar">
                 <p className="text-[var(--color-foreground)] whitespace-pre-wrap text-base md:text-lg font-medium leading-relaxed break-words max-w-full">
                   {selectedLink.submission.message}
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-[350px] md:h-[450px] text-stone-400 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
-                <p className="text-base font-bold text-stone-500">Still waiting...</p>
+              <div className="flex flex-col items-center justify-center py-16 md:py-24 text-stone-400 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+                <p className="text-base font-bold text-stone-500">
+                  Still waiting...
+                </p>
                 <p className="text-sm font-medium mt-1">
                   No one has left a message on this link yet.
                 </p>
