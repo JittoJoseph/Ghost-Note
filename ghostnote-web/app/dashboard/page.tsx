@@ -176,9 +176,9 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[var(--color-background)]">
       <main className="flex-1 flex flex-col py-8 lg:py-16">
-        <Container className="flex flex-col gap-12 max-w-4xl mx-auto w-full animate-fade-up">
+        <Container className="flex flex-col gap-12 max-w-4xl mx-auto w-full">
           {/* Top Bar (Logo + Logout) */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between animate-fade-up">
             <Link
               href="/"
               className="flex items-center gap-2 text-[var(--color-primary)]"
@@ -198,7 +198,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Substantial Horizontal Stats Bar */}
-          <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden animate-fade-up" style={{ animationDelay: '50ms' }}>
             <div className="flex flex-row divide-x divide-stone-100">
               <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
                 <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalLinks}</span>
@@ -218,7 +218,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Create Link Section */}
-          <div className="bg-white rounded-3xl border border-stone-200 p-6 shadow-sm">
+          <div className="bg-white rounded-3xl border border-stone-200 p-6 shadow-sm animate-fade-up" style={{ animationDelay: '100ms' }}>
             <form
               onSubmit={handleCreateLink}
               className="flex flex-col sm:flex-row gap-3"
@@ -271,7 +271,7 @@ export default function DashboardPage() {
           {/* Links List - Taller stacked cards */}
           {!isLoading && !isAuthLoading && links.length === 0 ? (
             /* Empty State */
-            <div className="py-20 flex flex-col items-center text-center">
+            <div className="py-20 flex flex-col items-center text-center animate-fade-up" style={{ animationDelay: '150ms' }}>
               <div className="w-16 h-16 bg-white border border-stone-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
                 <FaGhost className="w-8 h-8 text-stone-300" />
               </div>
@@ -285,7 +285,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-6">
-              {links.map((link) => {
+              {links.map((link, i) => {
                 const url = getLinkUrl(link.slug);
                 const isCopied = copiedId === link.id;
 
@@ -293,7 +293,8 @@ export default function DashboardPage() {
                   <div
                     key={link.id}
                     onClick={() => setSelectedLink(link)}
-                    className="group flex flex-col bg-white rounded-3xl border border-stone-200 p-6 md:p-8 cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-stone-300"
+                    className="group flex flex-col bg-white rounded-3xl border border-stone-200 p-6 md:p-8 cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-stone-300 animate-fade-up"
+                    style={{ animationDelay: `${150 + Math.min(i, 5) * 50}ms` }}
                   >
                     {/* Top Metadata Area */}
                     <div className="flex items-start justify-between mb-6">
