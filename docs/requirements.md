@@ -156,3 +156,24 @@ Service-to-service requests must implement basic authentication and authorizatio
 - Reliability
 - Scalability
 - Documentation
+
+## Project Decisions
+
+- OTP authentication is not implemented.
+- Email/password authentication only.
+- Three services in a monorepo:
+  - api
+  - web
+  - telegram-bot
+- Three database tables only:
+  - users
+  - links
+  - submissions
+- Web and Telegram users are treated as separate accounts.
+- No account linking.
+- No queues.
+- No notification persistence.
+- No extra analytics tables.
+- Link passwords are hashed before storage.
+- Anonymous links are single-use.
+- Cloudflare Workers + D1 + Hono + Drizzle.
