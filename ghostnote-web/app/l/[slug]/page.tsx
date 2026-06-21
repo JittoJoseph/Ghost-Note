@@ -121,13 +121,14 @@ export default function AnonymousLinkPage({
                     onChange={(e) => setMessage(e.target.value)}
                     required
                     maxLength={2000}
+                    className="min-h-[200px] text-base"
                   />
-                  <div className="flex justify-between items-center mt-1.5">
+                  <div className="flex justify-between items-center mt-2 px-1">
                     <span className="text-xs text-stone-400 font-medium">
                       No account required
                     </span>
-                    <span className="text-xs text-stone-400 font-medium">
-                      {message.length}/2000
+                    <span className={`text-xs font-bold ${message.length > 1800 ? "text-red-500" : message.length > 1500 ? "text-orange-500" : "text-stone-500"}`}>
+                      {message.length} <span className="font-medium text-stone-400">/ 2000</span>
                     </span>
                   </div>
                 </div>
