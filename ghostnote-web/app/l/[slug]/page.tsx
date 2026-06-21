@@ -1,22 +1,22 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { Container } from "@/components/layout/Container";
-import { Navbar } from "@/components/layout/Navbar";
-import { Card } from "@/components/ui/Card";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiSend, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import { FaGhost } from "react-icons/fa";
 
-export default function AnonymousLinkPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = use(params);
-  const slug = resolvedParams.slug;
-  
+export default function AnonymousLinkPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
+
   const [isValidating, setIsValidating] = useState(true);
   const [isValid, setIsValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -24,20 +24,16 @@ export default function AnonymousLinkPage({ params }: { params: Promise<{ slug: 
   useEffect(() => {
     const validateLink = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/links/${slug}`);
-        if (res.ok) {
-          const data = await res.json() as { valid?: boolean };
-          if (data.valid) {
-            setIsValid(true);
-          }
-        }
-      } catch (err) {
-        console.error("Link validation failed", err);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/links/${slug}`
+        );
+        setIsValid(res.ok);
+      } catch {
+        setIsValid(false);
       } finally {
         setIsValidating(false);
       }
     };
-
     validateLink();
   }, [slug]);
 
@@ -45,100 +41,120 @@ export default function AnonymousLinkPage({ params }: { params: Promise<{ slug: 
     e.preventDefault();
     setError("");
     setIsSubmitting(true);
-
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/links/${slug}/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, message }),
-      });
-
-      const data = await res.json() as { error?: string };
-
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to submit message");
-      }
-
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/links/${slug}/submit`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password, message }),
+        }
+      );
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error || "Failed to submit");
       setIsSuccess(true);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to submit message"
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[var(--color-background)] min-h-screen">
-      <Navbar />
-      <main className="flex-1 flex flex-col items-center justify-center py-10">
-        <Container className="max-w-lg">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
+      <main className="flex-1 flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md">
           {isValidating ? (
-            <Card className="flex flex-col items-center justify-center py-16">
-              <svg className="animate-spin h-10 w-10 text-[var(--color-primary)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </Card>
+            <div className="text-center py-20">
+              <div className="w-10 h-10 border-2 border-stone-200 border-t-[var(--color-primary)] rounded-full animate-spin mx-auto" />
+            </div>
           ) : !isValid ? (
-            <Card className="flex flex-col items-center justify-center py-16 text-center border-none shadow-[0_20px_60px_-15px_rgba(239,68,68,0.1)]">
-              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                <FiAlertCircle className="w-10 h-10 text-red-500" />
+            <div className="text-center py-10">
+              <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiAlertCircle className="w-7 h-7 text-red-400" />
               </div>
-              <h2 className="text-2xl font-extrabold text-[var(--color-foreground)]">Link Invalid</h2>
-              <p className="text-stone-500 font-medium mt-2 max-w-xs">This link does not exist or has already been used.</p>
-            </Card>
+              <h1 className="text-xl font-extrabold text-[var(--color-foreground)] mb-2">
+                Link Invalid
+              </h1>
+              <p className="text-sm text-stone-400 font-medium">
+                This link has expired or has already been used.
+              </p>
+            </div>
           ) : isSuccess ? (
-            <Card className="flex flex-col items-center justify-center py-16 text-center border-none shadow-[0_20px_60px_-15px_rgba(16,185,129,0.1)]">
-              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                <FiCheckCircle className="w-10 h-10 text-emerald-500" />
+            <div className="text-center py-10">
+              <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiCheckCircle className="w-7 h-7 text-green-500" />
               </div>
-              <h2 className="text-2xl font-extrabold text-[var(--color-foreground)]">Message Sent</h2>
-              <p className="text-stone-500 font-medium mt-2 max-w-xs">Your anonymous message has been securely delivered.</p>
-            </Card>
+              <h1 className="text-xl font-extrabold text-[var(--color-foreground)] mb-2">
+                Message Sent
+              </h1>
+              <p className="text-sm text-stone-400 font-medium">
+                Your anonymous message has been delivered.
+              </p>
+            </div>
           ) : (
-            <Card className="border-none">
-              <div className="text-center mb-10">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-50 text-[var(--color-primary)] rounded-full mb-6 shadow-inner">
-                  <FiCheckCircle className="w-8 h-8" />
-                </div>
-                <h1 className="text-3xl font-extrabold text-[var(--color-foreground)]">Send Message</h1>
-                <p className="text-stone-500 mt-3 font-medium text-base">You are posting securely and anonymously. This link will be destroyed after your submission.</p>
+            <div>
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-extrabold text-[var(--color-foreground)] mb-2">
+                  Send a Message
+                </h1>
+                <p className="text-sm text-stone-400 font-medium">
+                  Your identity will remain completely anonymous.
+                </p>
               </div>
-
-              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                 <Input
                   label="Link Password"
                   type="password"
-                  placeholder="Enter the password provided to you"
+                  placeholder="Enter the password..."
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                
-                <Textarea
-                  label="Your Message"
-                  placeholder="Write your anonymous message here..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  maxLength={2000}
-                  required
-                />
-                
-                <div className="flex justify-between items-center text-sm font-bold text-stone-400 px-2">
-                  <span>No account required</span>
-                  <span>{message.length} / 2000</span>
+                <div>
+                  <Textarea
+                    label="Your Message"
+                    placeholder="Write your anonymous message..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
+                    maxLength={2000}
+                  />
+                  <div className="flex justify-between items-center mt-1.5">
+                    <span className="text-xs text-stone-400 font-medium">
+                      No account required
+                    </span>
+                    <span className="text-xs text-stone-400 font-medium">
+                      {message.length}/2000
+                    </span>
+                  </div>
                 </div>
-
-                {error && <div className="text-sm text-red-500 font-bold mt-2 text-center bg-red-50 py-3 rounded-xl border border-red-100">{error}</div>}
-
-                <Button type="submit" className="w-full mt-4 h-[60px] text-lg" isLoading={isSubmitting}>
+                {error && (
+                  <p className="text-sm text-red-500 font-medium">{error}</p>
+                )}
+                <Button
+                  type="submit"
+                  isLoading={isSubmitting}
+                  className="w-full py-3 text-base"
+                >
+                  <FiSend className="w-4 h-4 mr-2" />
                   Submit Message
                 </Button>
               </form>
-            </Card>
+            </div>
           )}
-        </Container>
+        </div>
       </main>
+
+      {/* Subtle branding footer */}
+      <footer className="py-6 text-center">
+        <div className="inline-flex items-center gap-1.5 text-xs text-stone-300 font-bold">
+          <FaGhost className="w-3 h-3" />
+          <span>GhostNote</span>
+        </div>
+      </footer>
     </div>
   );
 }
