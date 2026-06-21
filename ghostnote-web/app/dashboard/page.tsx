@@ -34,7 +34,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [linkPassword, setLinkPassword] = useState("");
-  const [createdLink, setCreatedLink] = useState<string | null>(null);
+  const [createdSlug, setCreatedSlug] = useState<string | null>(null);
   const [isCreatingLink, setIsCreatingLink] = useState(false);
   const [createError, setCreateError] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -80,7 +80,7 @@ export default function DashboardPage() {
   const handleCreateLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreateError("");
-    setCreatedLink(null);
+    setCreatedSlug(null);
     setIsCreatingLink(true);
 
     try {
@@ -100,12 +100,7 @@ export default function DashboardPage() {
       };
       if (!res.ok) throw new Error(data.error || "Failed to create link");
 
-      // Handle both full URL (when FRONTEND_URL is set) and relative URL
-      const fullUrl =
-        data.url && data.url.startsWith("http")
-          ? data.url
-          : `${window.location.origin}${data.url || `/l/${data.slug}`}`;
-      setCreatedLink(fullUrl);
+      setCreatedSlug(data.slug || "");
       setLinkPassword("");
       fetchLinks();
     } catch (err: unknown) {
@@ -261,23 +256,34 @@ export default function DashboardPage() {
               </p>
             )}
 
-            {createdLink && (
-              <div className="mt-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl bg-green-50 border border-green-200">
-                <code className="text-base font-bold text-green-800 break-all flex-1">
-                  {createdLink}
-                </code>
-                <button
-                  onClick={(e) => handleCopy(e, createdLink, "new")}
-                  className="inline-flex items-center justify-center p-3 text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition-colors shrink-0 rounded-xl cursor-pointer"
-                  title="Copy Link"
+            {createdSlug && (
+              <button
+                onClick={(e) => handleCopy(e, getLinkUrl(createdSlug), "new")}
+                className={`mt-4 group flex flex-row items-center justify-between sm:justify-start gap-4 p-2 pl-5 pr-2 w-full sm:w-auto rounded-2xl sm:rounded-full transition-all duration-300 ease-out animate-fade-up cursor-pointer hover:-translate-y-0.5 hover:shadow-md border ${
+                  copiedId === "new"
+                    ? "bg-green-500 border-green-600 text-white"
+                    : "bg-emerald-50 border-emerald-200 text-emerald-900 hover:bg-emerald-100"
+                }`}
+                title="Copy Link"
+              >
+                <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+                  <span className={`text-xs sm:text-sm font-bold truncate ${copiedId === "new" ? "text-green-100" : "text-emerald-600"}`}>
+                    {copiedId === "new" ? "Copied!" : "Ready to share:"}
+                  </span>
+                  <span className="text-sm sm:text-base font-extrabold tracking-tight truncate">
+                    {createdSlug}
+                  </span>
+                </div>
+                <div
+                  className={`p-2.5 rounded-xl sm:rounded-full transition-colors shrink-0 flex items-center justify-center ${
+                    copiedId === "new"
+                      ? "bg-green-600 text-white"
+                      : "bg-white shadow-sm border border-emerald-200 text-emerald-600 group-hover:bg-emerald-50"
+                  }`}
                 >
-                  {copiedId === "new" ? (
-                    <FiCheck className="w-5 h-5" />
-                  ) : (
-                    <FiCopy className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
+                  {copiedId === "new" ? <FiCheck className="w-4 h-4" /> : <FiCopy className="w-4 h-4" />}
+                </div>
+              </button>
             )}
           </div>
 
