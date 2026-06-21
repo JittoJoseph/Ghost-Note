@@ -72,4 +72,47 @@ dashboardRouter.get("/submissions", async (c) => {
   }
 });
 
+dashboardRouter.get("/links", async (c) => {
+  const user = c.get("user");
+  const db = drizzle(c.env.DB);
+
+  try {
+    const userLinks = await db
+      .select({
+        id: links.id,
+        slug: links.slug,
+        createdAt: links.createdAt,
+        isUsed: links.isUsed,
+        visitCount: links.visitCount,
+        submissionId: submissions.id,
+        submissionMessage: submissions.message,
+        submissionCreatedAt: submissions.createdAt,
+      })
+      .from(links)
+      .leftJoin(submissions, eq(submissions.linkId, links.id))
+      .where(eq(links.userId, user.sub))
+      .orderBy(desc(links.createdAt))
+      .all();
+
+    const formattedLinks = userLinks.map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      createdAt: row.createdAt,
+      isUsed: row.isUsed,
+      visitCount: row.visitCount,
+      submission: row.submissionId
+        ? {
+            id: row.submissionId,
+            message: row.submissionMessage,
+            createdAt: row.submissionCreatedAt,
+          }
+        : null,
+    }));
+
+    return c.json({ links: formattedLinks });
+  } catch (error) {
+    return c.json({ error: "Failed to fetch links" }, 500);
+  }
+});
+
 export default dashboardRouter;
