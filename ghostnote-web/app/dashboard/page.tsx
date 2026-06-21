@@ -69,7 +69,7 @@ export default function DashboardPage() {
         body: JSON.stringify({ password: linkPassword }),
       });
 
-      const data = await res.json();
+      const data = await res.json() as { error?: string; url?: string };
       if (!res.ok) throw new Error(data.error || "Failed to create link");
 
       const fullUrl = `${window.location.origin}${data.url}`;
