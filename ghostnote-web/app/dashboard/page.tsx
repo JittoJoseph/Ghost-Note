@@ -176,7 +176,7 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[var(--color-background)]">
       <main className="flex-1 flex flex-col py-8 lg:py-16">
-        <Container className="flex flex-col gap-12 max-w-4xl mx-auto w-full">
+        <Container className="flex flex-col gap-12 max-w-4xl mx-auto w-full animate-fade-up">
           {/* Top Bar (Logo + Logout) */}
           <div className="flex items-center justify-between">
             <Link
@@ -198,37 +198,24 @@ export default function DashboardPage() {
           </div>
 
           {/* Substantial Horizontal Stats Bar */}
-          {isAuthLoading || isLoading || !token ? (
-            <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden animate-pulse">
-              <div className="flex flex-row divide-x divide-stone-100">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center">
-                    <div className="h-8 md:h-10 w-16 bg-stone-200 rounded mb-2"></div>
-                    <div className="h-3 w-12 bg-stone-200 rounded"></div>
-                  </div>
-                ))}
+          <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden">
+            <div className="flex flex-row divide-x divide-stone-100">
+              <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
+                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalLinks}</span>
+                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Links</span>
+              </div>
+              
+              <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
+                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalVisits}</span>
+                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Visits</span>
+              </div>
+              
+              <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
+                <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalResponses}</span>
+                <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Responses</span>
               </div>
             </div>
-          ) : (
-            <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden">
-              <div className="flex flex-row divide-x divide-stone-100">
-                <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
-                  <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalLinks}</span>
-                  <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Links</span>
-                </div>
-                
-                <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
-                  <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalVisits}</span>
-                  <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Visits</span>
-                </div>
-                
-                <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
-                  <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalResponses}</span>
-                  <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Responses</span>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
 
           {/* Create Link Section */}
           <div className="bg-white rounded-3xl border border-stone-200 p-6 shadow-sm">
@@ -282,22 +269,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Links List - Taller stacked cards */}
-          {isAuthLoading || isLoading || !token ? (
-            <div className="flex flex-col gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-3xl border border-stone-200 p-6 md:p-8 animate-pulse">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex flex-col gap-3">
-                      <div className="h-8 w-40 bg-stone-200 rounded"></div>
-                      <div className="h-4 w-32 bg-stone-100 rounded"></div>
-                    </div>
-                    <div className="w-10 h-10 bg-stone-100 rounded-full"></div>
-                  </div>
-                  <div className="w-full h-24 bg-stone-50 rounded-2xl border border-stone-100"></div>
-                </div>
-              ))}
-            </div>
-          ) : links.length === 0 ? (
+          {!isLoading && !isAuthLoading && links.length === 0 ? (
             /* Empty State */
             <div className="py-20 flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-white border border-stone-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
@@ -375,11 +347,11 @@ export default function DashboardPage() {
                     {/* Bottom Response Area */}
                     <div className="w-full bg-stone-50 rounded-2xl border border-stone-100 p-5 md:p-6 group-hover:bg-stone-100/50 transition-colors">
                       {link.submission ? (
-                        <p className="text-base text-stone-700 font-medium line-clamp-3 leading-relaxed">
+                        <p className="text-base text-stone-700 font-medium truncate">
                           {link.submission.message}
                         </p>
                       ) : (
-                        <p className="text-base text-stone-400 italic font-medium flex items-center gap-2">
+                        <p className="text-base text-stone-400 italic font-medium truncate">
                           No message yet. Share your link to receive responses.
                         </p>
                       )}
@@ -431,16 +403,16 @@ export default function DashboardPage() {
 
             {/* Modal Body */}
             {selectedLink.submission ? (
-              <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200">
-                <p className="text-[var(--color-foreground)] whitespace-pre-wrap text-base font-medium leading-relaxed">
-                  {selectedLink.submission.message}
-                </p>
+              <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200 h-[300px] overflow-y-auto custom-scrollbar">
+                <div className="min-h-full flex flex-col justify-center items-center">
+                  <p className="text-[var(--color-foreground)] whitespace-pre-wrap text-base md:text-lg font-medium leading-relaxed text-center break-words max-w-full">
+                    {selectedLink.submission.message}
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="flex flex-col py-8 text-stone-400">
-                <p className="text-base font-bold text-stone-500">
-                  Still waiting...
-                </p>
+              <div className="flex flex-col items-center justify-center h-[300px] text-stone-400 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+                <p className="text-base font-bold text-stone-500">Still waiting...</p>
                 <p className="text-sm font-medium mt-1">
                   No one has left a message on this link yet.
                 </p>
