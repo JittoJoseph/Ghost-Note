@@ -12,9 +12,6 @@ import {
   FiCheck,
   FiPlus,
   FiLogOut,
-  FiLink,
-  FiActivity,
-  FiInbox,
 } from "react-icons/fi";
 import { FaGhost } from "react-icons/fa";
 import Link from "next/link";
@@ -204,48 +201,21 @@ export default function DashboardPage() {
 
           {/* Substantial Horizontal Stats Bar */}
           {!isLoading && (
-            <div className="bg-white border border-stone-200 rounded-3xl shadow-sm overflow-hidden">
-              <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-stone-100">
-                <div className="flex-1 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-stone-50/50 transition-colors">
-                  <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-500">
-                    <FiLink className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <span className="block text-3xl font-bold text-[var(--color-foreground)] tracking-tight">
-                      {totalLinks}
-                    </span>
-                    <span className="text-sm font-bold text-stone-400">
-                      Total Links
-                    </span>
-                  </div>
+            <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden">
+              <div className="flex flex-row divide-x divide-stone-100">
+                <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
+                  <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalLinks}</span>
+                  <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Links</span>
                 </div>
-
-                <div className="flex-1 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-stone-50/50 transition-colors">
-                  <div className="p-3 bg-blue-50 rounded-2xl text-blue-500">
-                    <FiActivity className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <span className="block text-3xl font-bold text-[var(--color-foreground)] tracking-tight">
-                      {totalVisits}
-                    </span>
-                    <span className="text-sm font-bold text-stone-400">
-                      Total Visits
-                    </span>
-                  </div>
+                
+                <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
+                  <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalVisits}</span>
+                  <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Visits</span>
                 </div>
-
-                <div className="flex-1 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-stone-50/50 transition-colors">
-                  <div className="p-3 bg-green-50 rounded-2xl text-green-500">
-                    <FiInbox className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <span className="block text-3xl font-bold text-[var(--color-foreground)] tracking-tight">
-                      {totalResponses}
-                    </span>
-                    <span className="text-sm font-bold text-stone-400">
-                      Responses
-                    </span>
-                  </div>
+                
+                <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
+                  <span className="block text-2xl md:text-3xl font-extrabold text-[var(--color-foreground)] tracking-tight">{totalResponses}</span>
+                  <span className="text-[10px] md:text-xs font-bold text-stone-400 uppercase tracking-widest mt-1 text-center">Responses</span>
                 </div>
               </div>
             </div>
