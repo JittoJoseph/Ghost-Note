@@ -1,23 +1,19 @@
-import { argon2id, argon2Verify } from "hash-wasm";
+import bcrypt from "bcryptjs";
+
+bcrypt.setRandomFallback((len: number) => {
+  return Array.from(crypto.getRandomValues(new Uint8Array(len)));
+});
 
 export async function hashPassword(password: string): Promise<string> {
-  return argon2id({
-    password,
-    salt: crypto.getRandomValues(new Uint8Array(16)),
-    parallelism: 1,
-    iterations: 2,
-    memorySize: 15360,
-    hashLength: 32,
-    outputType: "encoded",
-  });
+  return bcrypt.hash(password, 10);
 }
 
 export async function verifyPassword(
   password: string,
-  hash: string,
+  storedHash: string,
 ): Promise<boolean> {
   try {
-    return await argon2Verify({ password, hash });
+    return await bcrypt.compare(password, storedHash);
   } catch {
     return false;
   }
