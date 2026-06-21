@@ -168,8 +168,6 @@ export default function DashboardPage() {
     });
   };
 
-  if (isAuthLoading || !token) return null;
-
   // Derive stats from links
   const totalLinks = links.length;
   const totalVisits = links.reduce((sum, l) => sum + l.visitCount, 0);
@@ -200,7 +198,18 @@ export default function DashboardPage() {
           </div>
 
           {/* Substantial Horizontal Stats Bar */}
-          {!isLoading && (
+          {isAuthLoading || isLoading || !token ? (
+            <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden animate-pulse">
+              <div className="flex flex-row divide-x divide-stone-100">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center">
+                    <div className="h-8 md:h-10 w-16 bg-stone-200 rounded mb-2"></div>
+                    <div className="h-3 w-12 bg-stone-200 rounded"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
             <div className="bg-white border border-stone-200 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden">
               <div className="flex flex-row divide-x divide-stone-100">
                 <div className="flex-1 p-4 md:p-6 flex flex-col justify-center items-center hover:bg-stone-50/50 transition-colors">
@@ -273,12 +282,20 @@ export default function DashboardPage() {
           </div>
 
           {/* Links List - Taller stacked cards */}
-          {isLoading ? (
-            <div className="py-20 text-center flex flex-col items-center justify-center">
-              <div className="w-10 h-10 border-2 border-stone-200 border-t-[var(--color-primary)] rounded-full animate-spin mb-4" />
-              <p className="text-stone-400 font-medium">
-                Loading your links...
-              </p>
+          {isAuthLoading || isLoading || !token ? (
+            <div className="flex flex-col gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white rounded-3xl border border-stone-200 p-6 md:p-8 animate-pulse">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex flex-col gap-3">
+                      <div className="h-8 w-40 bg-stone-200 rounded"></div>
+                      <div className="h-4 w-32 bg-stone-100 rounded"></div>
+                    </div>
+                    <div className="w-10 h-10 bg-stone-100 rounded-full"></div>
+                  </div>
+                  <div className="w-full h-24 bg-stone-50 rounded-2xl border border-stone-100"></div>
+                </div>
+              ))}
             </div>
           ) : links.length === 0 ? (
             /* Empty State */
