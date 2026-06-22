@@ -3,11 +3,21 @@ import { Env } from "./env";
 
 const app = new Hono<Env>();
 
+// Helper to escape HTML specifically for Telegram's HTML parse_mode
+const escapeHtml = (text: string) => {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+};
+
 // Helper to send telegram messages
 const sendTelegramMessage = async (
   token: string,
   chatId: string | number,
   text: string,
+  options?: { parseMode?: "HTML" | "MarkdownV2"; replyMarkup?: any },
 ) => {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
   const response = await fetch(url, {
@@ -18,6 +28,8 @@ const sendTelegramMessage = async (
     body: JSON.stringify({
       chat_id: chatId,
       text: text,
+      parse_mode: options?.parseMode,
+      reply_markup: options?.replyMarkup,
     }),
   });
   if (!response.ok) {
@@ -49,7 +61,9 @@ app.post("/internal/notify", async (c) => {
 
     // Fire off telegram API call asynchronously without blocking
     c.executionCtx.waitUntil(
-      sendTelegramMessage(c.env.TELEGRAM_BOT_TOKEN, chatId, text),
+      sendTelegramMessage(c.env.TELEGRAM_BOT_TOKEN, chatId, text, {
+        parseMode: "HTML",
+      }),
     );
 
     return c.json({ success: true });
@@ -67,16 +81,30 @@ app.post("/webhook", async (c) => {
         text?: string;
         from?: { username?: string };
       };
+      callback_query?: {
+        message?: { chat: { id: number | string } };
+        data?: string;
+        from?: { username?: string };
+      };
     };
 
-    // Only process text messages
-    if (!update.message || !update.message.text) {
-      return c.json({ ok: true }); // Acknowledge to Telegram
+    let chatId: number | string | undefined;
+    let text: string | undefined;
+    let username: string | undefined;
+
+    if (update.message?.text) {
+      chatId = update.message.chat.id;
+      text = update.message.text;
+      username = update.message.from?.username;
+    } else if (update.callback_query?.data) {
+      chatId = update.callback_query.message?.chat.id;
+      text = update.callback_query.data;
+      username = update.callback_query.from?.username;
     }
 
-    const chatId = update.message.chat.id;
-    const text = update.message.text;
-    const username = update.message.from?.username || "";
+    if (!chatId || !text) {
+      return c.json({ ok: true }); // Acknowledge to Telegram
+    }
 
     const stateKey = `telegram_state:${chatId}`;
 
@@ -86,12 +114,20 @@ app.post("/webhook", async (c) => {
       await sendTelegramMessage(
         c.env.TELEGRAM_BOT_TOKEN,
         chatId,
-        "Welcome to GhostNote.\n\nSend /link to generate an anonymous message link.",
+        "Welcome to <b>GhostNote</b>.\n\nGenerate one-time, anonymous message links directly from Telegram. No account required.",
+        {
+          parseMode: "HTML",
+          replyMarkup: {
+            inline_keyboard: [
+              [{ text: "Create Link", callback_data: "/link" }],
+            ],
+          },
+        },
       );
       return c.json({ ok: true });
     }
 
-    // Handle /link command
+    // Handle /link command (or callback)
     if (text === "/link") {
       // Set KV state
       await c.env.BOT_STATE_KV.put(stateKey, "WAITING_FOR_PASSWORD", {
@@ -100,7 +136,8 @@ app.post("/webhook", async (c) => {
       await sendTelegramMessage(
         c.env.TELEGRAM_BOT_TOKEN,
         chatId,
-        "Enter a password for the new link.",
+        "<b>Secure your link</b>\n\nPlease reply with a password for your new anonymous link.",
+        { parseMode: "HTML" },
       );
       return c.json({ ok: true });
     }
@@ -133,7 +170,8 @@ app.post("/webhook", async (c) => {
         await sendTelegramMessage(
           c.env.TELEGRAM_BOT_TOKEN,
           chatId,
-          "An error occurred. Please try again.",
+          "<b>An error occurred.</b> Please try again.",
+          { parseMode: "HTML" },
         );
         return c.json({ ok: true });
       }
@@ -143,7 +181,20 @@ app.post("/webhook", async (c) => {
       await sendTelegramMessage(
         c.env.TELEGRAM_BOT_TOKEN,
         chatId,
-        `Link generated:\n${data.url}\n\nPassword: ${password}`,
+        `<b>Link generated successfully!</b>\n\n<b>URL:</b>\n<code>${escapeHtml(data.url)}</code>\n\n<b>Password:</b>\n<code>${escapeHtml(password)}</code>`,
+        {
+          parseMode: "HTML",
+          replyMarkup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "Share Link",
+                  url: `https://t.me/share/url?url=${encodeURIComponent(data.url)}`,
+                },
+              ],
+            ],
+          },
+        },
       );
       return c.json({ ok: true });
     }
@@ -152,7 +203,7 @@ app.post("/webhook", async (c) => {
     await sendTelegramMessage(
       c.env.TELEGRAM_BOT_TOKEN,
       chatId,
-      "Command not recognized. Send /link to generate a new anonymous link.",
+      "Command not recognized.\n\nUse /link to generate a new anonymous link.",
     );
     return c.json({ ok: true });
   } catch (error) {

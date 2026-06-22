@@ -10,6 +10,15 @@ import { Env } from "../env";
 
 const linksRouter = new Hono<Env>();
 
+// Helper to escape HTML specifically for Telegram's HTML parse_mode
+const escapeHtml = (text: string) => {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+};
+
 // Create anonymous link (Authenticated)
 const createLinkSchema = z.object({
   password: z.string(),
@@ -91,7 +100,7 @@ linksRouter.get("/:slug", async (c) => {
               },
               body: JSON.stringify({
                 chatId: owner.telegramChatId,
-                text: "Someone opened your anonymous message link.",
+                text: "<b>Link opened</b>\n\nSomeone is currently viewing your anonymous message link.",
               }),
             });
           }
@@ -192,7 +201,7 @@ linksRouter.post(
                 },
                 body: JSON.stringify({
                   chatId: owner.telegramChatId,
-                  text: `New message received:\n\n${message}`,
+                  text: `<b>New message received</b>\n\n<blockquote>${escapeHtml(message)}</blockquote>`,
                 }),
               });
             }
