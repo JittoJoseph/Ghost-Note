@@ -38,6 +38,31 @@ export default function LandingPage() {
               </svg>
             </Link>
           </div>
+
+          <div className="mt-16 flex flex-col items-center animate-fade-up animate-delay-[300ms]">
+            <p className="text-xs font-bold text-stone-400 mb-4 tracking-widest uppercase">
+              Also available on
+            </p>
+            <Link
+              href="https://t.me/Ghostnote_messenger_bot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3 px-6 py-2.5 rounded-full bg-white border-2 border-stone-100 hover:border-[#2AABEE] hover:shadow-[0_8px_24px_-8px_rgba(42,171,238,0.4)] transition-all duration-300"
+            >
+              <div className="w-8 h-8 rounded-full bg-[#2AABEE] flex items-center justify-center shadow-inner">
+                <svg
+                  className="w-[18px] h-[18px] text-white pr-[2px] pt-[1px]"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l.002.001-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.148 4.6 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z" />
+                </svg>
+              </div>
+              <span className="font-bold text-stone-700 group-hover:text-[#2AABEE] transition-colors">
+                Telegram Bot
+              </span>
+            </Link>
+          </div>
         </Container>
       </main>
     </div>
