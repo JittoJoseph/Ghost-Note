@@ -5,6 +5,7 @@ import authRouter from "./routes/auth";
 import userRouter from "./routes/user";
 import linksRouter from "./routes/links";
 import dashboardRouter from "./routes/dashboard";
+import internalRouter from "./routes/internal";
 
 const app = new Hono<Env>();
 
@@ -33,5 +34,6 @@ app.route("/auth", authRouter);
 app.route("/user", userRouter);
 app.route("/links", linksRouter);
 app.route("/dashboard", dashboardRouter);
+app.route("/internal", internalRouter);
 
 export default app;
