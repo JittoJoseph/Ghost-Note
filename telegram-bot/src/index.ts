@@ -90,16 +90,13 @@ app.post("/webhook", async (c) => {
 
     let chatId: number | string | undefined;
     let text: string | undefined;
-    let username: string | undefined;
 
     if (update.message?.text) {
       chatId = update.message.chat.id;
       text = update.message.text;
-      username = update.message.from?.username;
     } else if (update.callback_query?.data) {
       chatId = update.callback_query.message?.chat.id;
       text = update.callback_query.data;
-      username = update.callback_query.from?.username;
     }
 
     if (!chatId || !text) {
@@ -159,8 +156,7 @@ app.post("/webhook", async (c) => {
           "x-internal-service-secret": c.env.INTERNAL_SERVICE_SECRET,
         },
         body: JSON.stringify({
-          telegramChatId: String(chatId),
-          telegramUsername: username,
+          telegramChatId: chatId.toString(),
           password: password,
         }),
       });

@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { users, links } from "../db/schema";
 import { hashPassword } from "../utils/password";
 import { internalAuthMiddleware } from "../middleware/internalAuth";
+import { generateSlug } from "../utils/slug";
 import { Env } from "../env";
 
 const internalRouter = new Hono<Env>();
@@ -15,7 +16,6 @@ internalRouter.use("*", internalAuthMiddleware);
 
 const createTelegramLinkSchema = z.object({
   telegramChatId: z.string(),
-  telegramUsername: z.string().optional(),
   password: z.string(),
 });
 
@@ -23,7 +23,7 @@ internalRouter.post(
   "/telegram/link",
   zValidator("json", createTelegramLinkSchema),
   async (c) => {
-    const { telegramChatId, telegramUsername, password } = c.req.valid("json");
+    const { telegramChatId, password } = c.req.valid("json");
     const db = drizzle(c.env.DB);
 
     try {
@@ -34,7 +34,6 @@ internalRouter.post(
           id: crypto.randomUUID(),
           provider: "telegram",
           telegramChatId,
-          telegramUsername,
           createdAt: new Date(),
         })
         .onConflictDoNothing({ target: users.telegramChatId });
@@ -54,9 +53,7 @@ internalRouter.post(
       const linkId = crypto.randomUUID();
 
       // Create an 8-character URL-safe random hex slug
-      const slug = Array.from(crypto.getRandomValues(new Uint8Array(4)))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
+      const slug = generateSlug();
 
       await db.insert(links).values({
         id: linkId,
