@@ -6,18 +6,18 @@ GhostNote is a secure, anonymous messaging platform. Users generate single-use l
 
 The project is a monorepo built natively for the Cloudflare edge ecosystem. It consists of three independent Cloudflare Workers:
 
-* [api/](./api/README.md): Core backend handling REST routes, database operations, and encryption. (Hono, Drizzle, D1)
-* [ghostnote-web/](./ghostnote-web/README.md): Public web interface and user dashboard. (Next.js, OpenNext, Tailwind CSS)
-* [telegram-bot/](./telegram-bot/README.md): Stateless webhook handler for Telegram integration. (KV)
+- [api/](./api/README.md): Core backend handling REST routes, database operations, and encryption. (Hono, Drizzle, D1)
+- [ghostnote-web/](./ghostnote-web/README.md): Public web interface and user dashboard. (Next.js, OpenNext, Tailwind CSS)
+- [telegram-bot/](./telegram-bot/README.md): Stateless webhook handler for Telegram integration. (KV)
 
 ## Security
 
 The platform implements strict access controls and data protection mechanisms:
 
-* **Message Encryption**: All submitted messages are encrypted at rest using AES-GCM via the Web Crypto API.
-* **Link Security**: Links are single-use and require a hash-verified password for submission.
-* **Authentication**: The web dashboard relies on secure JWT authentication.
-* **Internal Communication**: The Telegram Bot and API communicate over a private network via Cloudflare Service Bindings, protected by internal pre-shared secrets.
+- **Message Encryption**: All submitted messages are encrypted at rest using AES-GCM via the Web Crypto API.
+- **Link Security**: Links are single-use and require a hash-verified password for submission.
+- **Authentication**: The web dashboard relies on secure JWT authentication.
+- **Internal Communication**: The Telegram Bot and API communicate over a private network via Cloudflare Service Bindings, protected by internal pre-shared secrets.
 
 ## Setup
 
@@ -27,11 +27,7 @@ Requires Node.js and Wrangler.
 2. Configure `.dev.vars` with required local secrets per workspace.
 3. Start the local development servers (`npm run dev`).
 
-Alternatively, for local development only, you can spin up all three services simultaneously using Docker:
-```bash
-docker-compose up --build
-```
-*Note: Docker is provided strictly for local development convenience. Production deployments remain fully Cloudflare-native.*
+_Note: Docker is provided strictly for local development convenience. Production deployments remain fully Cloudflare-native._
 
 ## Deployment
 
