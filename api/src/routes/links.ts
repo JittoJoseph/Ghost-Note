@@ -6,6 +6,7 @@ import { eq, and } from "drizzle-orm";
 import { users, links, submissions } from "../db/schema";
 import { hashPassword, verifyPassword } from "../utils/password";
 import { authMiddleware } from "../middleware/auth";
+import { encryptMessage } from "../utils/encryption";
 import { Env } from "../env";
 
 const linksRouter = new Hono<Env>();
@@ -163,10 +164,15 @@ linksRouter.post(
       // 2. Only then create the submission
       const submissionId = crypto.randomUUID();
       try {
+        const encryptedMessage = await encryptMessage(
+          message,
+          c.env.MESSAGE_ENCRYPTION_KEY,
+        );
+
         await db.insert(submissions).values({
           id: submissionId,
           linkId: link.id,
-          message,
+          message: encryptedMessage,
           createdAt: new Date(),
         });
       } catch (insertError) {
