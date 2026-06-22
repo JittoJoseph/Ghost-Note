@@ -113,19 +113,9 @@ app.post("/webhook", async (c) => {
 
       const password = text;
 
-      if (!c.env.API_URL) {
-        console.error("Missing API_URL environment variable.");
-        await sendTelegramMessage(
-          c.env.TELEGRAM_BOT_TOKEN,
-          chatId,
-          "Configuration error. Please try again later.",
-        );
-        return c.json({ ok: true });
-      }
-
-      // Call internal API to generate link
-      const apiUrl = `${c.env.API_URL}/internal/telegram/link`;
-      const response = await fetch(apiUrl, {
+      // Call internal API via Service Binding
+      const apiUrl = `https://internal/internal/telegram/link`;
+      const response = await c.env.API.fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

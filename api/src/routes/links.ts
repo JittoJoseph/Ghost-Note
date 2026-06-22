@@ -83,7 +83,7 @@ linksRouter.get("/:slug", async (c) => {
             .where(eq(users.id, link.userId))
             .get();
           if (owner && owner.provider === "telegram" && owner.telegramChatId) {
-            await fetch(`${c.env.TELEGRAM_BOT_URL}/internal/notify`, {
+            await c.env.BOT.fetch(`https://internal/internal/notify`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -184,7 +184,7 @@ linksRouter.post(
               owner.provider === "telegram" &&
               owner.telegramChatId
             ) {
-              await fetch(`${c.env.TELEGRAM_BOT_URL}/internal/notify`, {
+              await c.env.BOT.fetch(`https://internal/internal/notify`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

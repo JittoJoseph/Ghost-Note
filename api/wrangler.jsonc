@@ -11,4 +11,10 @@
       "migrations_dir": "drizzle",
     },
   ],
+  "services": [
+    {
+      "binding": "BOT",
+      "service": "telegram-bot",
+    },
+  ],
 }

@@ -12,6 +12,12 @@
       "id": "d443032fa83d492e9075b1c2a0327dd5",
     },
   ],
+  "services": [
+    {
+      "binding": "API",
+      "service": "ghostnote-api",
+    },
+  ],
   // "r2_buckets": [
   //   {
   //     "binding": "MY_BUCKET",
