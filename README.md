@@ -10,6 +10,8 @@ The project is a monorepo built natively for the Cloudflare edge ecosystem. It c
 - [ghostnote-web/](./ghostnote-web/README.md): Public web interface and user dashboard. (Next.js, OpenNext, Tailwind CSS)
 - [telegram-bot/](./telegram-bot/README.md): Stateless webhook handler for Telegram integration. (KV)
 
+![GhostNote Architecture](./docs/architecture-diagram.svg)
+
 ## Security
 
 The platform implements strict access controls and data protection mechanisms:
