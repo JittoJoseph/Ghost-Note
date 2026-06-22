@@ -1,38 +1,34 @@
 # GhostNote
 
-GhostNote is an anonymous messaging platform that allows users to generate one-time links to receive messages securely. Users can manage their links through a web dashboard or directly via a Telegram bot. All submitted messages are encrypted at rest.
+GhostNote is a secure, anonymous messaging platform. Users generate single-use links to receive messages, manageable via a web dashboard or a Telegram bot interface.
 
-## Architecture
+## Architecture & Structure
 
-The project is built entirely on the Cloudflare ecosystem, utilizing Cloudflare Workers, D1 (SQLite), KV, and OpenNext.
+The project is a monorepo built natively for the Cloudflare edge ecosystem. It consists of three independent Cloudflare Workers:
 
-The architecture consists of three core services running as independent Cloudflare Workers:
-1. **API Service**: The core backend handling database interactions, authentication, message encryption, and business logic.
-2. **Web Frontend**: A Next.js application providing the landing page, user dashboard, and public submission forms.
-3. **Telegram Bot**: A webhook-based bot that allows users to create and manage links entirely within the Telegram app.
+* [api/](./api/README.md): Core backend handling REST routes, database operations, and encryption. (Hono, Drizzle, D1)
+* [ghostnote-web/](./ghostnote-web/README.md): Public web interface and user dashboard. (Next.js, OpenNext, Tailwind CSS)
+* [telegram-bot/](./telegram-bot/README.md): Stateless webhook handler for Telegram integration. (KV)
 
-The API and Telegram Bot communicate securely using Cloudflare Service Bindings, bypassing the public internet.
+## Security
 
-## Repository Structure
+The platform implements strict access controls and data protection mechanisms:
 
-This repository acts as a monorepo containing the following workspaces:
+* **Message Encryption**: All submitted messages are encrypted at rest using AES-GCM via the Web Crypto API.
+* **Link Security**: Links are single-use and require a hash-verified password for submission.
+* **Authentication**: The web dashboard relies on secure JWT authentication.
+* **Internal Communication**: The Telegram Bot and API communicate over a private network via Cloudflare Service Bindings, protected by internal pre-shared secrets.
 
-* [api/](./api/README.md): Cloudflare Worker (Hono + Drizzle ORM + D1)
-* [ghostnote-web/](./ghostnote-web/README.md): Next.js Frontend (OpenNext + Tailwind CSS)
-* [telegram-bot/](./telegram-bot/README.md): Cloudflare Worker (Telegram Webhook Handler + KV)
+## Setup
 
-## High Level Setup
+Requires Node.js and Wrangler.
 
-To run this project locally, ensure you have Node.js and Wrangler installed.
-
-1. Install dependencies in each workspace.
-2. Configure `.dev.vars` in the respective workspaces and fill in the required secrets.
-3. Run `npm run dev` in the `api`, `telegram-bot`, and `ghostnote-web` directories.
+1. Install dependencies across all workspaces (`npm install`).
+2. Configure `.dev.vars` with required local secrets per workspace.
+3. Start the local development servers (`npm run dev`).
 
 ## Deployment
 
-Deployment is managed via Wrangler for the Workers and OpenNext for the Next.js frontend. 
-
-1. Ensure all secrets are set in your Cloudflare account using `npx wrangler secret put`.
-2. Deploy the database migrations using `npm run db:generate` and applying them.
-3. Run `npm run deploy` in each workspace.
+1. Provision production secrets using `npx wrangler secret put`.
+2. Apply D1 database migrations.
+3. Deploy each workspace using `npm run deploy`.
