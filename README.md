@@ -27,6 +27,12 @@ Requires Node.js and Wrangler.
 2. Configure `.dev.vars` with required local secrets per workspace.
 3. Start the local development servers (`npm run dev`).
 
+Alternatively, for local development only, you can spin up all three services simultaneously using Docker:
+```bash
+docker-compose up --build
+```
+*Note: Docker is provided strictly for local development convenience. Production deployments remain fully Cloudflare-native.*
+
 ## Deployment
 
 1. Provision production secrets using `npx wrangler secret put`.
