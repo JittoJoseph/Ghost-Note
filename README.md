@@ -6,7 +6,7 @@ GhostNote is a secure, anonymous messaging platform. Users generate single-use l
 
 The project is a monorepo built natively for the Cloudflare edge ecosystem. It consists of three independent Cloudflare Workers:
 
-- [api/](./api/README.md): Core backend handling REST routes, database operations, and encryption. (Hono, Drizzle, D1)
+- [api/](./api/README.md): Core backend handling REST routes, database operations, and encryption. (Hono, Drizzle, D1) - [View API Docs](./api/API.md)
 - [ghostnote-web/](./ghostnote-web/README.md): Public web interface and user dashboard. (Next.js, OpenNext, Tailwind CSS)
 - [telegram-bot/](./telegram-bot/README.md): Stateless webhook handler for Telegram integration. (KV)
 
