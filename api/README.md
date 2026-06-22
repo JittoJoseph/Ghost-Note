@@ -1,35 +1,56 @@
 # GhostNote API
 
-GhostNote is a secure anonymous messaging platform.
+The API service is the core backend for GhostNote, running as a Cloudflare Worker. It is responsible for database interactions, authentication, message encryption, and business logic.
 
-## Development
+## Purpose & Responsibilities
 
-First, copy `.dev.vars.example` to `.dev.vars` (or create `.dev.vars`) and set your secrets:
-```env
-JWT_SECRET=your-super-secret-key-for-local-dev
-```
+* Serves RESTful endpoints for the Web Frontend (authentication, dashboard stats, links).
+* Handles public submissions and validates access passwords.
+* Interacts with Cloudflare D1 (SQLite) via Drizzle ORM.
+* Secures stored messages using AES-GCM encryption at rest via the Web Crypto API.
+* Communicates directly with the `telegram-bot` service via Cloudflare Service Bindings to push notifications.
 
-### Database Setup
+## Key Features
 
-We use Cloudflare D1 for our database and Drizzle ORM.
+* **Hono Framework**: Lightweight routing.
+* **Drizzle ORM**: Type-safe database queries.
+* **Service Bindings**: Secure, private network communication to the Telegram bot worker (`c.env.BOT.fetch`).
+* **Encryption at Rest**: Messages are encrypted seamlessly on insert and decrypted on retrieval.
 
-To initialize your local D1 database, apply the migrations:
+## Project Structure
+
+* `src/db/`: Drizzle schema and migrations.
+* `src/middleware/`: Authentication checks (JWT, Internal Service Secret).
+* `src/routes/`: Hono route handlers (`links.ts`, `dashboard.ts`, `user.ts`, `internal.ts`).
+* `src/utils/`: Shared utilities (`encryption.ts`, `password.ts`, `slug.ts`, `telegram.ts`).
+* `drizzle/`: Generated SQL migrations.
+
+## Environment Variables & Secrets
+
+Local variables are defined in `.dev.vars`. Production secrets must be set using Wrangler.
+
+* `JWT_SECRET`: Secret used to sign session cookies for the web dashboard.
+* `INTERNAL_SERVICE_SECRET`: Pre-shared key to authenticate requests coming from the `telegram-bot` service.
+* `MESSAGE_ENCRYPTION_KEY`: 256-bit secure key used for AES-GCM message encryption.
+* `FRONTEND_URL`: (Optional) Base URL for formatting generated links.
+
+## Local Development
+
 ```bash
-pnpm run db:generate
-pnpm run db:migrate
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev
+
+# Generate new Drizzle migrations (after editing schema.ts)
+npm run db:generate
 ```
 
-### Running Locally
+## Deployment
 
-To start the development server:
+Deploy the worker to Cloudflare:
+
 ```bash
-pnpm run dev
+npm run deploy
 ```
-
-## Available Scripts
-
-- `pnpm run dev` - Start the local development server using Wrangler
-- `pnpm run db:generate` - Generate SQL migrations from the Drizzle schema
-- `pnpm run db:migrate` - Apply the pending migrations to the local D1 database
-- `pnpm run cf-typegen` - Generate TypeScript types for Cloudflare bindings
-- `pnpm run deploy` - Deploy the worker to Cloudflare
