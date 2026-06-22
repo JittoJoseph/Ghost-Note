@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/d1";
 import { eq, sum, count, desc } from "drizzle-orm";
 import { links, submissions } from "../db/schema";
 import { authMiddleware } from "../middleware/auth";
+import { decryptMessage } from "../utils/encryption";
 import { Env } from "../env";
 
 const dashboardRouter = new Hono<Env>();
@@ -66,7 +67,17 @@ dashboardRouter.get("/submissions", async (c) => {
       .orderBy(desc(submissions.createdAt))
       .all();
 
-    return c.json({ submissions: userSubmissions });
+    const decryptedSubmissions = await Promise.all(
+      userSubmissions.map(async (sub) => ({
+        ...sub,
+        message: await decryptMessage(
+          sub.message,
+          c.env.MESSAGE_ENCRYPTION_KEY,
+        ),
+      })),
+    );
+
+    return c.json({ submissions: decryptedSubmissions });
   } catch (error) {
     return c.json({ error: "Failed to fetch submissions" }, 500);
   }
@@ -94,20 +105,25 @@ dashboardRouter.get("/links", async (c) => {
       .orderBy(desc(links.createdAt))
       .all();
 
-    const formattedLinks = userLinks.map((row) => ({
-      id: row.id,
-      slug: row.slug,
-      createdAt: row.createdAt,
-      isUsed: row.isUsed,
-      visitCount: row.visitCount,
-      submission: row.submissionId
-        ? {
-            id: row.submissionId,
-            message: row.submissionMessage,
-            createdAt: row.submissionCreatedAt,
-          }
-        : null,
-    }));
+    const formattedLinks = await Promise.all(
+      userLinks.map(async (row) => ({
+        id: row.id,
+        slug: row.slug,
+        createdAt: row.createdAt,
+        isUsed: row.isUsed,
+        visitCount: row.visitCount,
+        submission: row.submissionId
+          ? {
+              id: row.submissionId,
+              message: await decryptMessage(
+                row.submissionMessage as string,
+                c.env.MESSAGE_ENCRYPTION_KEY,
+              ),
+              createdAt: row.submissionCreatedAt,
+            }
+          : null,
+      })),
+    );
 
     return c.json({ links: formattedLinks });
   } catch (error) {
