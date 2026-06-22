@@ -7,6 +7,8 @@ import { users, links, submissions } from "../db/schema";
 import { hashPassword, verifyPassword } from "../utils/password";
 import { authMiddleware } from "../middleware/auth";
 import { encryptMessage } from "../utils/encryption";
+import { generateSlug } from "../utils/slug";
+import { notifyTelegramOwner } from "../utils/telegram";
 import { Env } from "../env";
 
 const linksRouter = new Hono<Env>();
@@ -38,9 +40,7 @@ linksRouter.post(
     const linkId = crypto.randomUUID();
 
     // Create an 8-character URL-safe random hex slug
-    const slug = Array.from(crypto.getRandomValues(new Uint8Array(4)))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+    const slug = generateSlug();
 
     try {
       await db.insert(links).values({
@@ -85,30 +85,12 @@ linksRouter.get("/:slug", async (c) => {
 
     // Notify if owner is a telegram user
     c.executionCtx.waitUntil(
-      (async () => {
-        try {
-          const owner = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, link.userId))
-            .get();
-          if (owner && owner.provider === "telegram" && owner.telegramChatId) {
-            await c.env.BOT.fetch(`https://internal/internal/notify`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "x-internal-service-secret": c.env.INTERNAL_SERVICE_SECRET,
-              },
-              body: JSON.stringify({
-                chatId: owner.telegramChatId,
-                text: "<b>Link opened</b>\n\nSomeone is currently viewing your anonymous message link.",
-              }),
-            });
-          }
-        } catch (err) {
-          console.error("Failed to send open notification:", err);
-        }
-      })(),
+      notifyTelegramOwner(
+        c,
+        db,
+        link.userId,
+        "<b>Link opened</b>\n\nSomeone is currently viewing your anonymous message link.",
+      ),
     );
 
     return c.json({ valid: true });
@@ -187,34 +169,12 @@ linksRouter.post(
 
       // Notify if owner is a telegram user
       c.executionCtx.waitUntil(
-        (async () => {
-          try {
-            const owner = await db
-              .select()
-              .from(users)
-              .where(eq(users.id, link.userId))
-              .get();
-            if (
-              owner &&
-              owner.provider === "telegram" &&
-              owner.telegramChatId
-            ) {
-              await c.env.BOT.fetch(`https://internal/internal/notify`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "x-internal-service-secret": c.env.INTERNAL_SERVICE_SECRET,
-                },
-                body: JSON.stringify({
-                  chatId: owner.telegramChatId,
-                  text: `<b>New message received</b>\n\n<blockquote>${escapeHtml(message)}</blockquote>`,
-                }),
-              });
-            }
-          } catch (err) {
-            console.error("Failed to send submission notification:", err);
-          }
-        })(),
+        notifyTelegramOwner(
+          c,
+          db,
+          link.userId,
+          `<b>New message received</b>\n\n<blockquote>${escapeHtml(message)}</blockquote>`,
+        ),
       );
 
       return c.json({ message: "Submission successful" }, 201);
