@@ -2,19 +2,16 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "telegram-bot",
   "main": "src/index.ts",
-  "compatibility_date": "2026-06-22"
+  "compatibility_date": "2026-06-22",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
+  "kv_namespaces": [
+    {
+      "binding": "BOT_STATE_KV",
+      "id": "d443032fa83d492e9075b1c2a0327dd5",
+    },
+  ],
   // "r2_buckets": [
   //   {
   //     "binding": "MY_BUCKET",
